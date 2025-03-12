@@ -1,5 +1,5 @@
 
-import { useSignIn, useSignUp } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -9,28 +9,21 @@ interface OAuthOptionsProps {
 
 const OAuthOptions = ({ mode }: OAuthOptionsProps) => {
   const { toast } = useToast();
-  const { isLoaded: isSignInLoaded, signIn } = useSignIn();
-  const { isLoaded: isSignUpLoaded, signUp } = useSignUp();
+  const navigate = useNavigate();
   
-  const isLoaded = mode === 'sign-up' ? isSignUpLoaded : isSignInLoaded;
-
   const handleGoogleAuth = async () => {
-    if (!isLoaded) return;
-    
     try {
-      if (mode === 'sign-up') {
-        await signUp?.authenticateWithRedirect({
-          strategy: 'oauth_google',
-          redirectUrl: '/sso-callback',
-          redirectUrlComplete: '/tutors',
-        });
-      } else {
-        await signIn?.authenticateWithRedirect({
-          strategy: 'oauth_google',
-          redirectUrl: '/sso-callback',
-          redirectUrlComplete: '/tutors',
-        });
-      }
+      // Simulate authentication process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Google authentication successful",
+        description: mode === 'sign-up' 
+          ? "Your account has been created successfully!" 
+          : "Welcome back to TutorSpace!",
+      });
+      
+      navigate('/tutors');
     } catch (error) {
       console.error(error);
       toast({
