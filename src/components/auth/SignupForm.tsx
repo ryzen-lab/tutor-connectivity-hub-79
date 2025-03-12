@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useSignUp } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,31 +15,31 @@ const SignupForm = () => {
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { isLoaded, signUp } = useSignUp();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded) return;
 
     try {
       setIsLoading(true);
-      
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (firstName && lastName && email && password) {
-        // For demo purposes, we'll navigate to the verification page
-        navigate('/verify');
-        toast({
-          title: "Verification email sent",
-          description: "Please check your email to verify your account.",
-        });
-      } else {
-        toast({
-          title: "Error signing up",
-          description: "Please fill in all fields.",
-          variant: "destructive",
-        });
-      }
+      await signUp.create({
+        firstName,
+        lastName,
+        emailAddress: email,
+        password,
+      });
+
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
+
+      navigate('/verify');
+      toast({
+        title: "Verification email sent",
+        description: "Please check your email to verify your account.",
+      });
     } catch (error) {
       console.error(error);
       toast({

@@ -15,12 +15,11 @@ import TutorsList from "./pages/TutorsList";
 
 const queryClient = new QueryClient();
 
-// Rather than using an environment variable that doesn't exist, 
-// we'll use a temporary dummy key for demo purposes
-const CLERK_PUBLISHABLE_KEY = "pk_test_placeholder-key-for-demo-purposes";
+// Get the Clerk publishable key from environment variable
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const App = () => (
-  <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+  <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />

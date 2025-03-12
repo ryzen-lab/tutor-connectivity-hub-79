@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useSignUp } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,29 +11,26 @@ const VerifyEmail = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { isLoaded, signUp } = useSignUp();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (!isLoaded) return;
+
     try {
       setIsLoading(true);
       
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: verificationCode,
+      });
       
-      if (verificationCode) {
+      if (completeSignUp.status === 'complete') {
         toast({
           title: "Account verified",
           description: "Your account has been successfully verified.",
         });
         navigate('/tutors');
-      } else {
-        toast({
-          title: "Verification failed",
-          description: "The verification code is incorrect or expired.",
-          variant: "destructive",
-        });
       }
     } catch (error) {
       console.error(error);

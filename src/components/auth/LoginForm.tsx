@@ -13,30 +13,26 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { isLoaded, signIn } = useSignIn();
   const navigate = useNavigate();
-  
-  // For demo purposes, we'll mock the sign-in functionality
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (!isLoaded) return;
+
     try {
       setIsLoading(true);
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
       
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (email && password) {
+      if (result.status === 'complete') {
         toast({
           title: "Login successful",
           description: "Welcome back to TutorSpace!",
         });
         navigate('/tutors');
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Please check your credentials and try again.",
-          variant: "destructive",
-        });
       }
     } catch (error) {
       console.error(error);
