@@ -7,6 +7,7 @@ interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, name: string, password: string) => Promise<void>;
   logout: () => void;
+  isTutor: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,10 +30,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isAuthenticated: false,
     isLoading: true,
   });
+  const [isTutor, setIsTutor] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in from localStorage
     const storedUser = localStorage.getItem('user');
+    const storedTutorProfile = localStorage.getItem('tutorProfile');
     
     if (storedUser) {
       try {
@@ -43,14 +46,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           isAuthenticated: true,
           isLoading: false,
         });
+        
+        // Check if user is a tutor
+        if (storedTutorProfile) {
+          const tutorProfile = JSON.parse(storedTutorProfile);
+          setIsTutor(tutorProfile.isTutor || false);
+        }
       } catch (error) {
         console.error('Error parsing stored user:', error);
         localStorage.removeItem('user');
+        localStorage.removeItem('tutorProfile');
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
+        setIsTutor(false);
       }
     } else {
       setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -148,11 +159,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = () => {
     console.log('Logging out user');
     localStorage.removeItem('user');
+    localStorage.removeItem('tutorProfile');
     setAuthState({
       user: null,
       isAuthenticated: false,
       isLoading: false,
     });
+    setIsTutor(false);
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
@@ -166,6 +179,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         signup,
         logout,
+        isTutor,
       }}
     >
       {children}
